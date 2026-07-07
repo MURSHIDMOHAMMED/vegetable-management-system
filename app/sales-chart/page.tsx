@@ -3,15 +3,16 @@
 import AuthGuard from '@/components/layout/AuthGuard';
 import { useEffect, useState } from 'react';
 import { getBillsLast30Days, getBillsByMonth } from '@/lib/firestore/bills';
-import { Bill } from '@/types';
+import { getPaymentsLast30Days } from '@/lib/firestore/payments';
+import { Bill, Payment } from '@/types';
 import { format, subDays } from 'date-fns';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
 
-// Build daily chart data for last N days from bills
-function buildDailyData(bills: Bill[], days: number) {
+// Build daily chart data for last N days from bills and payments
+function buildDailyData(bills: Bill[], payments: Payment[], days: number) {
   const today = new Date();
   const map: Record<string, { sales: number; collected: number; outstanding: number }> = {};
 
@@ -25,15 +26,26 @@ function buildDailyData(bills: Bill[], days: number) {
     if (map[b.date]) {
       map[b.date].sales += b.subtotal;
       map[b.date].collected += b.amountPaid;
-      map[b.date].outstanding += b.balance;
     }
   });
 
-  return Object.entries(map).map(([date, vals]) => ({
-    date,
-    label: format(new Date(date + 'T00:00:00'), 'dd MMM'),
-    ...vals,
-  }));
+  payments.forEach(p => {
+    if (map[p.date]) {
+      map[p.date].collected += p.amount;
+    }
+  });
+
+  // Calculate daily outstanding (net new debt for that day)
+  return Object.entries(map).map(([date, vals]) => {
+    const outstanding = vals.sales - vals.collected;
+    return {
+      date,
+      label: format(new Date(date + 'T00:00:00'), 'dd MMM'),
+      sales: vals.sales,
+      collected: vals.collected,
+      outstanding: outstanding > 0 ? outstanding : 0, // Only show positive net new debt on chart
+    };
+  });
 }
 
 // Build customer breakdown
@@ -68,6 +80,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function SalesChartPage() {
   const [bills, setBills] = useState<Bill[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState<7 | 14 | 30>(30);
   const [activeTab, setActiveTab] = useState<'trend' | 'bar' | 'customers'>('trend');
@@ -76,8 +89,12 @@ export default function SalesChartPage() {
     const fetch = async () => {
       setLoading(true);
       try {
-        const data = await getBillsLast30Days();
-        setBills(data);
+        const [billsData, paymentsData] = await Promise.all([
+          getBillsLast30Days(),
+          getPaymentsLast30Days()
+        ]);
+        setBills(billsData);
+        setPayments(paymentsData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -87,12 +104,14 @@ export default function SalesChartPage() {
     fetch();
   }, []);
 
-  const dailyData = buildDailyData(bills, range);
+  const dailyData = buildDailyData(bills, payments, range);
   const customerData = buildCustomerData(bills);
 
   const totalSales = bills.reduce((s, b) => s + b.subtotal, 0);
-  const totalCollected = bills.reduce((s, b) => s + b.amountPaid, 0);
-  const totalOutstanding = bills.reduce((s, b) => s + b.balance, 0);
+  const totalCollectedFromBills = bills.reduce((s, b) => s + b.amountPaid, 0);
+  const totalCollectedFromPayments = payments.reduce((s, p) => s + p.amount, 0);
+  const totalCollected = totalCollectedFromBills + totalCollectedFromPayments;
+  const totalOutstanding = totalSales - totalCollected;
   const totalBills = bills.length;
 
   return (
@@ -125,7 +144,7 @@ export default function SalesChartPage() {
         <div className="col-6 col-md-3">
           <div className="card shadow-sm border-warning border-start border-4 h-100">
             <div className="card-body py-3">
-              <div className="text-muted small fw-semibold text-uppercase mb-1">Outstanding</div>
+              <div className="text-muted small fw-semibold text-uppercase mb-1">Balance Due (30d)</div>
               <div className="fs-4 fw-bold text-warning">₹{totalOutstanding.toFixed(0)}</div>
             </div>
           </div>
@@ -233,7 +252,7 @@ export default function SalesChartPage() {
                     <Legend />
                     <Bar dataKey="sales" name="Total Sales" fill="#6366f1" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="collected" name="Collected" fill="#10b981" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="outstanding" name="Outstanding" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="outstanding" name="Balance Due" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}

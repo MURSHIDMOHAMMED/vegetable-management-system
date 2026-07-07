@@ -50,6 +50,17 @@ export async function getPaymentsByMonth(yearMonth: string): Promise<Payment[]> 
     .filter(p => p.date.startsWith(yearMonth));
 }
 
+export async function getPaymentsLast30Days(): Promise<Payment[]> {
+  const q = query(collection(db, COL), orderBy('date', 'asc'));
+  const snap = await getDocs(q);
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 29);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+  return snap.docs
+    .map(d => toPayment(d.id, d.data()))
+    .filter(p => p.date >= cutoffStr);
+}
+
 /**
  * Records a payment and reduces customer balance.
  */

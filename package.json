@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "bootstrap": "^5.3.8",
     "date-fns": "^4.4.0",
     "firebase": "^12.15.0",

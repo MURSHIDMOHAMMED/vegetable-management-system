@@ -4,11 +4,15 @@ import AuthGuard from '@/components/layout/AuthGuard';
 import { useEffect, useState } from 'react';
 import { getSettings, saveSettings } from '@/lib/firestore/settings';
 import { ShopSettings } from '@/types';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<ShopSettings>({ shopName: '', phone: '', address: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -35,6 +39,38 @@ export default function SettingsPage() {
       alert('Failed to save settings.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleResetData = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (resetPassword !== 'admin') {
+      alert('Incorrect password. Action denied.');
+      return;
+    }
+    
+    if (!confirm('WARNING: This will permanently delete ALL customers, products, orders, bills, and payments. Are you absolutely sure?')) {
+      return;
+    }
+
+    setResetting(true);
+    try {
+      const collections = ['customers', 'products', 'orders', 'bills', 'payments'];
+      
+      for (const col of collections) {
+        const snap = await getDocs(collection(db, col));
+        const deletePromises = snap.docs.map(d => deleteDoc(doc(db, col, d.id)));
+        await Promise.all(deletePromises);
+      }
+      
+      alert('All project data has been successfully reset.');
+      setResetPassword('');
+      window.location.reload();
+    } catch (err) {
+      console.error('Failed to reset data:', err);
+      alert('Failed to reset data. Check console for details.');
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -99,6 +135,37 @@ export default function SettingsPage() {
             </div>
           </form>
         )}
+      </div>
+
+      {/* Danger Zone: Reset Data */}
+      <div className="card shadow-sm mx-auto mt-4 border-danger border-2" style={{ maxWidth: '600px' }}>
+        <div className="card-header bg-danger text-white py-3">
+          <h5 className="card-title mb-0 fw-bold">Danger Zone: Reset Project Data</h5>
+        </div>
+        <div className="card-body p-4">
+          <p className="text-danger fw-semibold">
+            Warning: This action will permanently delete all customers, products, orders, bills, and payments. Your shop settings will be preserved.
+          </p>
+          <form onSubmit={handleResetData} className="mt-3">
+            <div className="input-group">
+              <input
+                type="password"
+                className="form-control border-danger"
+                placeholder="Enter admin password to reset"
+                value={resetPassword}
+                onChange={e => setResetPassword(e.target.value)}
+                required
+              />
+              <button 
+                type="submit" 
+                className="btn btn-danger fw-bold" 
+                disabled={resetting || !resetPassword}
+              >
+                {resetting ? 'Resetting...' : 'Reset All Data'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </AuthGuard>
   );

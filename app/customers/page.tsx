@@ -5,6 +5,7 @@ import Modal from '@/components/ui/Modal';
 import { useEffect, useState } from 'react';
 import { getCustomers, addCustomer, updateCustomer, deleteCustomer } from '@/lib/firestore/customers';
 import { Customer } from '@/types';
+import Link from 'next/link';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -135,7 +136,7 @@ export default function CustomersPage() {
                   <th>Shop Name</th>
                   <th>Phone</th>
                   <th>Address</th>
-                  <th>Balance</th>
+                  <th>Balance Due (to us)</th>
                   <th className="text-end">Actions</th>
                 </tr>
               </thead>
@@ -151,12 +152,17 @@ export default function CustomersPage() {
                       </span>
                     </td>
                     <td>
-                      <span className={`badge ${c.balance > 0 ? 'bg-danger' : c.balance < 0 ? 'bg-success' : 'bg-secondary'}`}>
-                        ₹{c.balance.toFixed(2)}
+                      {/* balance > 0 = customer owes us (danger) | balance = 0 = cleared (success) | balance < 0 = customer overpaid (warning) */}
+                      <span className={`badge ${c.balance > 0 ? 'bg-danger' : c.balance < 0 ? 'bg-warning text-dark' : 'bg-success'}`}>
+                        ₹{Math.abs(c.balance).toFixed(2)}
+                        {c.balance > 0 && ' (owes)'}
+                        {c.balance < 0 && ' (credit)'}
+                        {c.balance === 0 && ' (clear)'}
                       </span>
                     </td>
                     <td>
                       <div className="d-flex justify-content-end gap-2">
+                        <Link href={`/customers/${c.id}`} className="btn btn-sm btn-outline-primary">View</Link>
                         <button className="btn btn-sm btn-outline-secondary" onClick={() => handleOpenModal(c)}>Edit</button>
                         <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(c.id)}>Delete</button>
                       </div>

@@ -135,7 +135,26 @@ export default function BillingPage({ params }: { params: Promise<{ orderId: str
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
       
       pdf.addImage(imgData, 'PNG', 0, 5, pdfWidth, pdfHeight);
-      pdf.save(`Bill_${order?.customerName}_${format(new Date(), 'dd-MM-yy')}.pdf`);
+      const filename = `Bill_${order?.customerName}_${format(new Date(), 'dd-MM-yy')}.pdf`;
+
+      // Try to use Native Web Share API first (solves the Capacitor / Android webview download issue)
+      const pdfBlob = pdf.output('blob');
+      
+      try {
+        const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: filename,
+            files: [file]
+          });
+        } else {
+          // Fallback for desktop or unsupported browsers
+          pdf.save(filename);
+        }
+      } catch (shareErr) {
+        console.error('Sharing failed or cancelled, falling back to save:', shareErr);
+        pdf.save(filename);
+      }
     } catch (err) {
       console.error('Error generating PDF:', err);
       alert('Failed to generate PDF');
@@ -162,7 +181,13 @@ export default function BillingPage({ params }: { params: Promise<{ orderId: str
     
     message += `\n*Subtotal:* ₹${subtotal.toFixed(2)}\n`;
     if (paid > 0) message += `*Paid:* ₹${paid.toFixed(2)}\n`;
-    message += `*Balance added:* ₹${balance.toFixed(2)}\n\n`;
+    message += `*Current Bill Bal:* ₹${balance.toFixed(2)}\n`;
+    if (customer && (customer.balance !== 0 || balance > 0)) {
+      message += `*Previous Debt:* ₹${customer.balance.toFixed(2)}\n`;
+      message += `*Total Due:* ₹${(customer.balance + balance).toFixed(2)}\n\n`;
+    } else {
+      message += `\n`;
+    }
     message += `Thank you for your business!`;
 
     const encodedMessage = encodeURIComponent(message);
@@ -285,10 +310,22 @@ export default function BillingPage({ params }: { params: Promise<{ orderId: str
                 <span>₹{paid.toFixed(2)}</span>
               </div>
             )}
-            <div className="d-flex justify-content-between mt-1 fw-bold border-top pt-1 mt-1">
-              <span>Net Bal:</span>
+            <div className="d-flex justify-content-between mt-1 fw-bold">
+              <span>Current Bill Bal:</span>
               <span>₹{balance.toFixed(2)}</span>
             </div>
+            {(customer && (customer.balance !== 0 || balance > 0)) && (
+              <>
+                <div className="d-flex justify-content-between mt-1" style={{ color: '#555' }}>
+                  <span>Previous Debt:</span>
+                  <span>₹{customer.balance.toFixed(2)}</span>
+                </div>
+                <div className="d-flex justify-content-between mt-1 fw-bold border-top pt-1 mt-1" style={{ fontSize: '14px' }}>
+                  <span>Total Due:</span>
+                  <span>₹{(customer.balance + balance).toFixed(2)}</span>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="text-center mt-4 border-top pt-2 fw-bold">Thank you for your business!</div>
@@ -307,11 +344,22 @@ export default function BillingPage({ params }: { params: Promise<{ orderId: str
 
   return (
     <AuthGuard>
-      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom gap-3">
         <div>
           <h1 className="h2 mb-1 fw-bold">Process Billing</h1>
           <p className="text-muted mb-0">Order for <span className="fw-semibold text-dark">{order.customerName}</span></p>
         </div>
+        
+        {customer && (
+          <div className="card shadow-sm border-0 bg-light">
+            <div className="card-body py-2 px-3">
+              <div className="text-muted small fw-semibold text-uppercase mb-1">Previous Balance Due</div>
+              <div className={`fw-bold fs-5 ${customer.balance > 0 ? 'text-danger' : customer.balance < 0 ? 'text-warning' : 'text-success'}`}>
+                ₹{customer.balance.toFixed(2)}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card shadow-sm mb-4">
