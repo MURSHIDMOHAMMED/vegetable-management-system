@@ -1,7 +1,6 @@
 'use client';
 
 import Sidebar from './Sidebar';
-import BottomNav from './BottomNav';
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -33,12 +32,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="container-fluid flex-grow-1 d-flex p-0">
         <Sidebar />
         
-        <main className="flex-grow-1 p-3 p-md-4 mb-5 mb-md-0" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <main className="flex-grow-1 w-100 p-3 p-md-4" style={{ maxWidth: '1200px', margin: '0 auto', minWidth: 0 }}>
           {children}
         </main>
       </div>
-
-      <BottomNav />
     </div>
   );
 }

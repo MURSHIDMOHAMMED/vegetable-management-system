@@ -269,8 +269,8 @@ export default function PendingOrdersPage() {
             </div>
           )}
 
-          <form onSubmit={handleAddEditItem} className="d-flex gap-2 align-items-end">
-            <div className="flex-grow-1">
+          <form onSubmit={handleAddEditItem} className="row g-2 align-items-end">
+            <div className="col-12 col-sm-6">
               <select
                 className="form-select form-select-sm"
                 value={addProductId}
@@ -282,11 +282,10 @@ export default function PendingOrdersPage() {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="col-7 col-sm-3">
               <input
                 type="number"
                 className="form-control form-control-sm"
-                style={{ width: '90px' }}
                 value={addQuantity}
                 min="0.01"
                 step="0.01"
@@ -294,8 +293,8 @@ export default function PendingOrdersPage() {
                 onChange={e => setAddQuantity(e.target.value)}
               />
             </div>
-            <div>
-              <button type="submit" className="btn btn-outline-secondary btn-sm h-100">Add</button>
+            <div className="col-5 col-sm-3">
+              <button type="submit" className="btn btn-outline-secondary btn-sm w-100">Add</button>
             </div>
           </form>
         </div>

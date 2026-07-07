@@ -183,7 +183,7 @@ export default function SalesChartPage() {
           </div>
         </div>
 
-        <div className="card-body p-4" style={{ minHeight: '380px' }}>
+        <div className="card-body p-4 overflow-hidden" style={{ minHeight: '380px', minWidth: 0 }}>
           {loading ? (
             <div className="d-flex justify-content-center align-items-center h-100" style={{ minHeight: '320px' }}>
               <div className="spinner-border text-primary" role="status">
