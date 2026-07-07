@@ -104,12 +104,12 @@ const managementItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, onClose }: { open?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const { logout } = useAuth();
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${open ? 'open' : ''}`}>
       <div className="sidebar-logo">
         <h1>🥬 VegWholesale</h1>
         <p>Management System</p>

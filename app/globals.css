@@ -754,8 +754,42 @@ tbody tr:hover {
 .text-danger  { color: var(--danger); }
 .text-amber   { color: var(--accent-dark); }
 
-/* ===== RESPONSIVE ===== */
+
+
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .sidebar, .header, .bottom-nav, .no-print {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+
+  body {
+    background: white;
+  }
+}
+
+/* ===== RESPONSIVE — TABLET (max 1024px) ===== */
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 200px;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== RESPONSIVE — MOBILE (max 768px) ===== */
 @media (max-width: 768px) {
+  /* Sidebar: slide off screen, show bottom nav instead */
   .sidebar {
     transform: translateX(-100%);
   }
@@ -773,54 +807,203 @@ tbody tr:hover {
     display: flex;
   }
 
+  /* Tighter page padding */
   .page-content {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 
+  /* Stack page headers vertically */
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .page-header > .btn,
+  .page-header > a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Full-width form grids */
   .form-grid-2 {
     grid-template-columns: 1fr;
   }
 
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
+  /* Stack form rows on mobile */
+  .form-row {
+    flex-wrap: wrap;
   }
 
+  /* Stat grid: 2 columns on mobile */
   .stat-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
   }
 
-  h1 { font-size: 1.25rem; }
-}
-
-@media (max-width: 480px) {
-  .stat-grid {
-    grid-template-columns: 1fr 1fr;
+  .stat-card {
+    padding: 0.875rem;
   }
 
-  .modal {
+  .stat-card .stat-value {
+    font-size: 1.3rem;
+  }
+
+  /* Cards */
+  .card-body {
+    padding: 1rem;
+  }
+
+  .card-header {
+    padding: 0.875rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+
+  /* Tables: allow horizontal scroll, set min widths */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 500px;
+  }
+
+  th, td {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.82rem;
+  }
+
+  /* Buttons — sm stays same, ensure tap targets */
+  .btn {
+    min-height: 38px;
+  }
+
+  .btn-sm {
+    min-height: 32px;
+  }
+
+  /* Search bar full width */
+  .search-bar {
     max-width: 100%;
-    margin: 0;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    width: 100%;
   }
 
+  /* Modals: full-screen sheet from bottom */
   .modal-backdrop {
     align-items: flex-end;
     padding: 0;
   }
-}
 
-/* ===== PRINT STYLES ===== */
-@media print {
-  .sidebar, .header, .bottom-nav, .no-print {
+  .modal {
+    max-width: 100%;
+    width: 100%;
+    max-height: 92vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  /* Typography */
+  h1 { font-size: 1.2rem; }
+  h2 { font-size: 1.05rem; }
+
+  /* Flex wrapping utilities */
+  .flex-wrap { flex-wrap: wrap; }
+  .justify-center { justify-content: center; }
+
+  /* Billing page summary cards */
+  .billing-summary {
+    flex-direction: column;
+  }
+
+  /* Hide low-priority table columns on mobile */
+  .hide-mobile {
     display: none !important;
   }
+}
 
-  .main-content {
-    margin-left: 0 !important;
+/* ===== RESPONSIVE — SMALL MOBILE (max 480px) ===== */
+@media (max-width: 480px) {
+  .page-content {
+    padding: 0.625rem;
   }
 
-  body {
-    background: white;
+  /* 2 cols for stat grid stays */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .stat-card {
+    padding: 0.75rem;
+  }
+
+  .stat-card .stat-value {
+    font-size: 1.15rem;
+  }
+
+  .stat-card .stat-label {
+    font-size: 0.72rem;
+  }
+
+  /* Page header tighter */
+  .page-header {
+    margin-bottom: 0.875rem;
+  }
+
+  /* Card body */
+  .card-body {
+    padding: 0.75rem;
+  }
+
+  /* Form rows fully stacked */
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-row .btn {
+    width: 100%;
+  }
+
+  /* Buttons in action rows wrap */
+  .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  /* Modal body padding */
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  /* Bottom nav: smaller icons/text */
+  .bottom-nav-item {
+    font-size: 0.6rem;
+    padding: 0.4rem 0.5rem;
+  }
+
+  .bottom-nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Tables min-width smaller */
+  table {
+    min-width: 380px;
+  }
+
+  /* Table actions: stack buttons */
+  td .btn-ghost + .btn-ghost {
+    margin-left: 0;
   }
 }
