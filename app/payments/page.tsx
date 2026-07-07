@@ -77,98 +77,115 @@ export default function PaymentsPage() {
 
   return (
     <AuthGuard>
-      <div className="page-header">
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <div>
-          <h1>Payments</h1>
-          <p className="text-muted">Record payments received from customers</p>
+          <h1 className="h2 mb-1 fw-bold">Payments</h1>
+          <p className="text-muted mb-0">Record payments received from customers</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-          + Record Payment
-        </button>
+        <div className="btn-toolbar mb-2 mb-md-0 mt-3 mt-md-0">
+          <button className="btn btn-success" onClick={() => setIsModalOpen(true)}>
+            + Record Payment
+          </button>
+        </div>
       </div>
 
       {/* Summary */}
       {!loading && (
-        <div className="stat-grid mb-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-          <div className="stat-card red">
-            <div className="stat-label">Total Outstanding</div>
-            <div className="stat-value">₹{totalOutstanding.toFixed(2)}</div>
+        <div className="row g-3 mb-4">
+          <div className="col-12 col-md-6">
+            <div className="card shadow-sm border-danger border-start border-4 h-100">
+              <div className="card-body py-3">
+                <div className="text-muted small fw-semibold text-uppercase mb-1">Total Outstanding</div>
+                <div className="fs-4 fw-bold text-danger">₹{totalOutstanding.toFixed(2)}</div>
+              </div>
+            </div>
           </div>
-          <div className="stat-card amber">
-            <div className="stat-label">Customers with Balance</div>
-            <div className="stat-value">{customers.filter(c => c.balance > 0).length}</div>
+          <div className="col-12 col-md-6">
+            <div className="card shadow-sm border-warning border-start border-4 h-100">
+              <div className="card-body py-3">
+                <div className="text-muted small fw-semibold text-uppercase mb-1">Customers with Balance</div>
+                <div className="fs-4 fw-bold text-warning">{customers.filter(c => c.balance > 0).length}</div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="card">
-        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <h2>Outstanding Balances</h2>
-          <div className="flex gap-3 items-center">
-            <div className="search-bar" style={{ maxWidth: 260, minWidth: 180 }}>
-              <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              </svg>
+      <div className="card shadow-sm">
+        <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <h5 className="card-title mb-0 fw-bold">Outstanding Balances</h5>
+          <div className="d-flex gap-3 align-items-center">
+            <div className="input-group input-group-sm" style={{ maxWidth: '250px' }}>
+              <span className="input-group-text bg-light text-muted border-end-0">
+                <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" width="16" height="16">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+              </span>
               <input
                 type="text"
+                className="form-control border-start-0 ps-0 shadow-none"
                 placeholder="Search customer..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
             </div>
-            <label className="flex items-center gap-2 text-sm" style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}>
-              <input
-                type="checkbox"
+            <div className="form-check form-switch mb-0">
+              <input 
+                className="form-check-input" 
+                type="checkbox" 
+                role="switch" 
+                id="showAllSwitch"
                 checked={showAll}
                 onChange={e => setShowAll(e.target.checked)}
-                style={{ width: 16, height: 16 }}
               />
-              Show all
-            </label>
+              <label className="form-check-label small" htmlFor="showAllSwitch">Show all</label>
+            </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="card-body text-center py-8">
-            <div className="spinner" />
+          <div className="card-body text-center py-5">
+            <div className="spinner-border text-success" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
           </div>
         ) : customersToShow.length === 0 ? (
-          <div className="empty-state">
-            <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <div className="card-body text-center py-5 text-muted">
+            <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="48" height="48" className="mb-3 opacity-50">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p>{showAll ? 'No customers found.' : 'No customers have outstanding balances.'}</p>
+            <p className="mb-0">{showAll ? 'No customers found.' : 'No customers have outstanding balances.'}</p>
             {!showAll && (
-              <button className="btn btn-outline btn-sm mt-4" onClick={() => setShowAll(true)}>
+              <button className="btn btn-outline-secondary btn-sm mt-3" onClick={() => setShowAll(true)}>
                 Show all customers
               </button>
             )}
           </div>
         ) : (
-          <div className="table-wrapper">
-            <table>
-              <thead>
+          <div className="table-responsive">
+            <table className="table table-striped table-hover align-middle mb-0">
+              <thead className="table-light">
                 <tr>
                   <th>Customer</th>
                   <th>Phone</th>
-                  <th className="text-right">Balance Due (₹)</th>
-                  <th className="text-right">Action</th>
+                  <th className="text-end">Balance Due (₹)</th>
+                  <th className="text-end">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {customersToShow.map(c => (
                   <tr key={c.id}>
                     <td>
-                      <div className="font-medium">{c.name}</div>
-                      {c.shopName && <div className="text-sm text-muted">{c.shopName}</div>}
+                      <div className="fw-semibold">{c.name}</div>
+                      {c.shopName && <div className="small text-muted">{c.shopName}</div>}
                     </td>
                     <td>{c.phone || '-'}</td>
-                    <td className={`text-right font-medium ${c.balance > 0 ? 'text-danger' : 'text-muted'}`}>
+                    <td className={`text-end fw-bold ${c.balance > 0 ? 'text-danger' : 'text-muted'}`}>
                       ₹{c.balance.toFixed(2)}
                     </td>
-                    <td className="text-right">
+                    <td className="text-end">
                       <button
-                        className="btn btn-outline btn-sm"
+                        className="btn btn-sm btn-outline-success"
                         onClick={() => openPaymentModal(c)}
                       >
                         Receive Payment
@@ -187,9 +204,9 @@ export default function PaymentsPage() {
         onClose={() => setIsModalOpen(false)}
         title="Record Payment"
       >
-        <form onSubmit={handleSubmit} className="form-grid">
-          <div className="form-group">
-            <label className="form-label">Customer</label>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Customer <span className="text-danger">*</span></label>
             <select
               className="form-select"
               value={formData.customerId}
@@ -204,11 +221,11 @@ export default function PaymentsPage() {
               ))}
             </select>
           </div>
-          <div className="form-group">
-            <label className="form-label">Amount (₹)</label>
+          <div className="mb-3">
+            <label className="form-label fw-semibold">Amount (₹) <span className="text-danger">*</span></label>
             <input
               type="number"
-              className="form-input"
+              className="form-control"
               min="0.01"
               step="0.01"
               value={formData.amount}
@@ -216,20 +233,22 @@ export default function PaymentsPage() {
               required
             />
           </div>
-          <div className="form-group">
-            <label className="form-label">Note (Optional)</label>
+          <div className="mb-4">
+            <label className="form-label fw-semibold">Note (Optional)</label>
             <input
               type="text"
-              className="form-input"
+              className="form-control"
               placeholder="e.g. Cash, UPI, Bank Transfer..."
               value={formData.note}
               onChange={e => setFormData({ ...formData, note: e.target.value })}
             />
           </div>
-          <div className="flex justify-between mt-4">
-            <button type="button" className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save Payment'}
+          <div className="d-flex justify-content-between pt-3 border-top">
+            <button type="button" className="btn btn-outline-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
+            <button type="submit" className="btn btn-success" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...</>
+              ) : 'Save Payment'}
             </button>
           </div>
         </form>

@@ -27,44 +27,50 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
-      <div className="card" style={{ width: '100%', maxWidth: '400px', padding: '2rem' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{ color: 'var(--primary)', marginBottom: '0.5rem' }}>🥬 VegWholesale</h1>
-          <p className="text-muted">Login to manage your business</p>
-        </div>
-        
-        {error && (
-          <div className="badge badge-red mb-4" style={{ width: '100%', padding: '0.75rem', justifyContent: 'center' }}>
-            {error}
+    <div className="min-vh-100 d-flex align-items-center justify-content-center bg-light">
+      <div className="card shadow-sm border-0" style={{ width: '100%', maxWidth: '400px' }}>
+        <div className="card-body p-4 p-md-5">
+          <div className="text-center mb-4">
+            <h1 className="h3 fw-bold text-success mb-2">🥬 VegWholesale</h1>
+            <p className="text-muted small mb-0">Login to manage your business</p>
           </div>
-        )}
+          
+          {error && (
+            <div className="alert alert-danger py-2 px-3 text-center small" role="alert">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="form-grid gap-4">
-          <div className="form-group">
-            <label className="form-label">Email</label>
-            <input 
-              type="email" 
-              className="form-input" 
-              value={email} 
-              onChange={e => setEmail(e.target.value)} 
-              required 
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input 
-              type="password" 
-              className="form-input" 
-              value={password} 
-              onChange={e => setPassword(e.target.value)} 
-              required 
-            />
-          </div>
-          <button type="submit" className="btn btn-primary btn-lg mt-4 w-full" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label className="form-label fw-semibold">Email</label>
+              <input 
+                type="email" 
+                className="form-control" 
+                value={email} 
+                onChange={e => setEmail(e.target.value)} 
+                required 
+              />
+            </div>
+            <div className="mb-4">
+              <label className="form-label fw-semibold">Password</label>
+              <input 
+                type="password" 
+                className="form-control" 
+                value={password} 
+                onChange={e => setPassword(e.target.value)} 
+                required 
+              />
+            </div>
+            <div className="d-grid mt-4">
+              <button type="submit" className="btn btn-success btn-lg fw-semibold" disabled={loading}>
+                {loading ? (
+                  <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Logging in...</>
+                ) : 'Login'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

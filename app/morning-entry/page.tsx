@@ -102,107 +102,122 @@ export default function MorningEntryPage() {
 
   return (
     <AuthGuard>
-      <div className="page-header">
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <div>
-          <h1>Morning Entry</h1>
-          <p className="text-muted">Create a new order for a customer (Quantity only)</p>
+          <h1 className="h2 mb-1 fw-bold">Morning Entry</h1>
+          <p className="text-muted mb-0">Create a new order for a customer (Quantity only)</p>
         </div>
       </div>
 
       {loading ? (
-        <div className="loading-screen" style={{ minHeight: '300px' }}>
-          <div className="spinner" />
+        <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
+          <div className="spinner-border text-success" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
         </div>
       ) : (
-        <div className="flex-col gap-6">
-          <div className="card">
-            <div className="card-header">
-              <h2>Select Customer</h2>
-            </div>
-            <div className="card-body">
-              <select 
-                className="form-select" 
-                value={selectedCustomerId} 
-                onChange={e => setSelectedCustomerId(e.target.value)}
-              >
-                <option value="">-- Select Customer --</option>
-                {customers.map(c => (
-                  <option key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</option>
-                ))}
-              </select>
+        <div className="row g-4">
+          <div className="col-12">
+            <div className="card shadow-sm">
+              <div className="card-header bg-white py-3">
+                <h5 className="card-title mb-0 fw-bold">Select Customer</h5>
+              </div>
+              <div className="card-body">
+                <select 
+                  className="form-select" 
+                  value={selectedCustomerId} 
+                  onChange={e => setSelectedCustomerId(e.target.value)}
+                >
+                  <option value="">-- Select Customer --</option>
+                  {customers.map(c => (
+                    <option key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 
-          <div className="card">
-            <div className="card-header">
-              <h2>Add Products</h2>
-            </div>
-            <div className="card-body">
-              <form onSubmit={handleAddItem} className="form-row flex-wrap">
-                <div className="form-group" style={{ flex: '1 1 200px' }}>
-                  <label className="form-label">Product</label>
-                  <select 
-                    className="form-select" 
-                    value={selectedProductId} 
-                    onChange={e => setSelectedProductId(e.target.value)}
-                  >
-                    <option value="">-- Select Product --</option>
-                    {products.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group" style={{ width: '120px' }}>
-                  <label className="form-label">Quantity</label>
-                  <input 
-                    type="number" 
-                    className="form-input" 
-                    step="0.01" 
-                    min="0.01" 
-                    value={quantity} 
-                    onChange={e => setQuantity(e.target.value)}
-                  />
-                </div>
-                <button type="submit" className="btn btn-outline" style={{ height: '38px', marginTop: 'auto' }}>
-                  + Add
-                </button>
-              </form>
-
-              {items.length > 0 && (
-                <div className="table-wrapper mt-6">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Product</th>
-                        <th>Qty / Unit</th>
-                        <th className="text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {items.map((item, idx) => (
-                        <tr key={idx}>
-                          <td className="font-medium">{item.productName}</td>
-                          <td>{item.quantity} {item.unit}</td>
-                          <td className="text-right">
-                            <button className="btn btn-ghost btn-sm text-danger" onClick={() => handleRemoveItem(idx)}>Remove</button>
-                          </td>
-                        </tr>
+          <div className="col-12">
+            <div className="card shadow-sm">
+              <div className="card-header bg-white py-3">
+                <h5 className="card-title mb-0 fw-bold">Add Products</h5>
+              </div>
+              <div className="card-body">
+                <form onSubmit={handleAddItem} className="row g-3 align-items-end mb-4">
+                  <div className="col-12 col-md-6">
+                    <label className="form-label text-muted fw-semibold">Product</label>
+                    <select 
+                      className="form-select" 
+                      value={selectedProductId} 
+                      onChange={e => setSelectedProductId(e.target.value)}
+                    >
+                      <option value="">-- Select Product --</option>
+                      {products.map(p => (
+                        <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                    </select>
+                  </div>
+                  <div className="col-12 col-md-4">
+                    <label className="form-label text-muted fw-semibold">Quantity</label>
+                    <input 
+                      type="number" 
+                      className="form-control" 
+                      step="0.01" 
+                      min="0.01" 
+                      value={quantity} 
+                      onChange={e => setQuantity(e.target.value)}
+                    />
+                  </div>
+                  <div className="col-12 col-md-2">
+                    <button type="submit" className="btn btn-outline-secondary w-100">
+                      + Add
+                    </button>
+                  </div>
+                </form>
+
+                {items.length > 0 && (
+                  <div className="table-responsive">
+                    <table className="table table-striped table-hover align-middle mb-0">
+                      <thead className="table-light text-muted">
+                        <tr>
+                          <th className="text-uppercase fw-semibold" style={{ fontSize: '0.85rem' }}>Product</th>
+                          <th className="text-uppercase fw-semibold" style={{ fontSize: '0.85rem' }}>Qty / Unit</th>
+                          <th className="text-end text-uppercase fw-semibold" style={{ fontSize: '0.85rem' }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((item, idx) => (
+                          <tr key={idx}>
+                            <td className="fw-medium">{item.productName}</td>
+                            <td>{item.quantity} {item.unit}</td>
+                            <td className="text-end">
+                              <button 
+                                className="btn btn-sm btn-link text-danger text-decoration-none" 
+                                onClick={() => handleRemoveItem(idx)}
+                              >
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-4 mt-2">
-            <button className="btn btn-outline" onClick={() => { setSelectedCustomerId(''); setItems([]); }}>Reset</button>
+          <div className="col-12 d-flex justify-content-end gap-3 mb-5">
+            <button className="btn btn-outline-secondary px-4" onClick={() => { setSelectedCustomerId(''); setItems([]); }}>Reset</button>
             <button 
-              className="btn btn-primary" 
+              className="btn btn-success px-4" 
               onClick={handleSubmitOrder} 
               disabled={isSubmitting || !selectedCustomerId || items.length === 0}
             >
-              {isSubmitting ? 'Saving...' : 'Save Morning Entry'}
+              {isSubmitting ? (
+                <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...</>
+              ) : 'Save Morning Entry'}
             </button>
           </div>
         </div>

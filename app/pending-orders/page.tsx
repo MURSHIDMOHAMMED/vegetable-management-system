@@ -125,74 +125,80 @@ export default function PendingOrdersPage() {
 
   return (
     <AuthGuard>
-      <div className="page-header">
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom">
         <div>
-          <h1>Pending Orders</h1>
-          <p className="text-muted">Orders waiting for pricing and billing</p>
+          <h1 className="h2 mb-1 fw-bold">Pending Orders</h1>
+          <p className="text-muted mb-0">Orders waiting for pricing and billing</p>
         </div>
-        <Link href="/morning-entry" className="btn btn-primary">
-          + New Order
-        </Link>
+        <div className="btn-toolbar mb-2 mb-md-0 mt-3 mt-md-0">
+          <Link href="/morning-entry" className="btn btn-success">
+            + New Order
+          </Link>
+        </div>
       </div>
 
-      <div className="card">
+      <div className="card shadow-sm">
         {loading ? (
-          <div className="card-body text-center py-8">
-            <div className="spinner" />
+          <div className="card-body text-center py-5">
+            <div className="spinner-border text-success" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
           </div>
         ) : orders.length === 0 ? (
-          <div className="empty-state">
-            <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <div className="card-body text-center py-5 text-muted">
+            <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="48" height="48" className="mb-3 opacity-50">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <p>No pending orders found.</p>
+            <p className="mb-0">No pending orders found.</p>
           </div>
         ) : (
-          <div className="table-wrapper">
-            <table>
-              <thead>
+          <div className="table-responsive">
+            <table className="table table-striped table-hover align-middle mb-0">
+              <thead className="table-light">
                 <tr>
                   <th>Date</th>
                   <th>Customer</th>
                   <th>Items</th>
-                  <th className="text-right">Actions</th>
+                  <th className="text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {orders.map(order => (
                   <tr key={order.id}>
-                    <td className="text-sm">{format(new Date(order.createdAt), 'dd MMM, hh:mm a')}</td>
+                    <td className="small text-nowrap">{format(new Date(order.createdAt), 'dd MMM, hh:mm a')}</td>
                     <td>
-                      <div className="font-medium">{order.customerName}</div>
+                      <div className="fw-semibold">{order.customerName}</div>
                       {order.customerShopName && (
-                        <div className="text-sm text-muted">{order.customerShopName}</div>
+                        <div className="small text-muted">{order.customerShopName}</div>
                       )}
                     </td>
                     <td>
-                      <div className="text-sm">
+                      <div className="d-flex flex-wrap gap-1">
                         {order.items.map((item, i) => (
-                          <span key={i} className="badge badge-gray" style={{ marginRight: 4, marginBottom: 4 }}>
-                            {item.productName} × {item.quantity}{item.unit}
+                          <span key={i} className="badge bg-secondary">
+                            {item.productName} &times; {item.quantity}{item.unit}
                           </span>
                         ))}
                       </div>
                     </td>
-                    <td className="text-right">
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => handleOpenEdit(order)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-sm text-danger"
-                        onClick={() => handleDelete(order)}
-                      >
-                        Delete
-                      </button>
-                      <Link href={`/billing/${order.id}`} className="btn btn-outline btn-sm">
-                        Process Bill
-                      </Link>
+                    <td>
+                      <div className="d-flex justify-content-end gap-2">
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          onClick={() => handleOpenEdit(order)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => handleDelete(order)}
+                        >
+                          Delete
+                        </button>
+                        <Link href={`/billing/${order.id}`} className="btn btn-sm btn-success">
+                          Process Bill
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -204,43 +210,43 @@ export default function PendingOrdersPage() {
 
       {/* Edit Modal */}
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Edit Order">
-        <div className="form-grid">
-          <div className="form-group">
-            <label className="form-label">Customer</label>
-            <select
-              className="form-select"
-              value={editCustomerId}
-              onChange={e => setEditCustomerId(e.target.value)}
-            >
-              {customers.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name}{c.shopName ? ` — ${c.shopName}` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Customer</label>
+          <select
+            className="form-select"
+            value={editCustomerId}
+            onChange={e => setEditCustomerId(e.target.value)}
+          >
+            {customers.map(c => (
+              <option key={c.id} value={c.id}>
+                {c.name}{c.shopName ? ` — ${c.shopName}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div className="form-group">
-            <label className="form-label">Items</label>
-            {editItems.length > 0 && (
-              <div className="table-wrapper mb-4" style={{ border: '1px solid var(--border)', borderRadius: 8 }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Product</th>
-                      <th>Qty</th>
-                      <th className="text-right">Remove</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {editItems.map((item, idx) => (
-                      <tr key={idx}>
-                        <td>{item.productName}</td>
-                        <td>
+        <div className="mb-3">
+          <label className="form-label fw-semibold">Items</label>
+          {editItems.length > 0 && (
+            <div className="table-responsive mb-3 border rounded">
+              <table className="table table-sm table-borderless mb-0">
+                <thead className="table-light border-bottom">
+                  <tr>
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th className="text-end">Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {editItems.map((item, idx) => (
+                    <tr key={idx}>
+                      <td className="align-middle">{item.productName}</td>
+                      <td className="align-middle">
+                        <div className="d-flex align-items-center gap-1">
                           <input
                             type="number"
-                            className="form-input"
-                            style={{ padding: '0.2rem 0.4rem', width: 80 }}
+                            className="form-control form-control-sm"
+                            style={{ width: '80px' }}
                             value={item.quantity}
                             min="0.01"
                             step="0.01"
@@ -250,22 +256,23 @@ export default function PendingOrdersPage() {
                               setEditItems(newItems);
                             }}
                           />
-                          <span className="text-sm text-muted" style={{ marginLeft: 4 }}>{item.unit}</span>
-                        </td>
-                        <td className="text-right">
-                          <button className="btn btn-ghost btn-sm text-danger" onClick={() => handleRemoveEditItem(idx)}>✕</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                          <span className="small text-muted">{item.unit}</span>
+                        </div>
+                      </td>
+                      <td className="text-end align-middle">
+                        <button className="btn btn-sm btn-link text-danger text-decoration-none p-0" onClick={() => handleRemoveEditItem(idx)}>✕</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-            <form onSubmit={handleAddEditItem} className="form-row" style={{ gap: 8 }}>
+          <form onSubmit={handleAddEditItem} className="d-flex gap-2 align-items-end">
+            <div className="flex-grow-1">
               <select
-                className="form-select"
-                style={{ flex: 1 }}
+                className="form-select form-select-sm"
                 value={addProductId}
                 onChange={e => setAddProductId(e.target.value)}
               >
@@ -274,26 +281,32 @@ export default function PendingOrdersPage() {
                   <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
                 ))}
               </select>
+            </div>
+            <div>
               <input
                 type="number"
-                className="form-input"
-                style={{ width: 90 }}
+                className="form-control form-control-sm"
+                style={{ width: '90px' }}
                 value={addQuantity}
                 min="0.01"
                 step="0.01"
                 placeholder="Qty"
                 onChange={e => setAddQuantity(e.target.value)}
               />
-              <button type="submit" className="btn btn-outline" style={{ height: 38 }}>Add</button>
-            </form>
-          </div>
+            </div>
+            <div>
+              <button type="submit" className="btn btn-outline-secondary btn-sm h-100">Add</button>
+            </div>
+          </form>
+        </div>
 
-          <div className="flex justify-between mt-4">
-            <button className="btn btn-outline" onClick={() => setIsModalOpen(false)}>Cancel</button>
-            <button className="btn btn-primary" onClick={handleSaveEdit} disabled={isSaving}>
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
+        <div className="d-flex justify-content-between mt-4 pt-3 border-top">
+          <button className="btn btn-outline-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
+          <button className="btn btn-success" onClick={handleSaveEdit} disabled={isSaving}>
+            {isSaving ? (
+              <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...</>
+            ) : 'Save Changes'}
+          </button>
         </div>
       </Modal>
     </AuthGuard>

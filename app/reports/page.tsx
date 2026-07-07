@@ -77,40 +77,44 @@ export default function ReportsPage() {
 
   return (
     <AuthGuard>
-      <div className="page-header no-print">
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-4 border-bottom no-print">
         <div>
-          <h1>Daily Reports</h1>
-          <p className="text-muted">View bills and payments for a specific date</p>
+          <h1 className="h2 mb-1 fw-bold">Daily Reports</h1>
+          <p className="text-muted mb-0">View bills and payments for a specific date</p>
         </div>
       </div>
 
-      <div className="card mb-6 no-print">
+      <div className="card shadow-sm mb-4 no-print">
         <div className="card-body">
-          <form onSubmit={handleSearch} className="form-row flex-wrap">
-            <div className="form-group" style={{ width: '200px' }}>
-              <label className="form-label">Select Date</label>
+          <form onSubmit={handleSearch} className="d-flex align-items-end gap-3 flex-wrap">
+            <div style={{ width: '220px' }}>
+              <label className="form-label fw-semibold text-muted mb-1">Select Date</label>
               <input 
                 type="date" 
-                className="form-input" 
+                className="form-control" 
                 value={date} 
                 onChange={e => setDate(e.target.value)}
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary" style={{ height: '38px', marginTop: 'auto' }} disabled={loading}>
-              {loading ? 'Loading...' : 'Generate Report'}
-            </button>
+            <div>
+              <button type="submit" className="btn btn-primary px-4" disabled={loading}>
+                {loading ? (
+                  <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...</>
+                ) : 'Generate Report'}
+              </button>
+            </div>
             {hasSearched && (
-              <div className="flex gap-2" style={{ marginTop: 'auto' }}>
-                <button type="button" className="btn btn-outline" style={{ height: '38px' }} onClick={handlePrint}>
-                  <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{width:18, height:18, marginRight:6}}>
+              <div className="ms-auto d-flex gap-2">
+                <button type="button" className="btn btn-outline-secondary" onClick={handlePrint}>
+                  <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="18" height="18" className="me-2 d-inline-block align-text-bottom">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6.728 12.551A5.25 5.25 0 0112 7.5h.052l-2.034-2.033a1.125 1.125 0 011.591-1.59l4 4a1.125 1.125 0 010 1.59l-4 4a1.125 1.125 0 01-1.591-1.59l2.034-2.032zM17.272 11.449A5.25 5.25 0 0112 16.5h-.052l2.034 2.033a1.125 1.125 0 01-1.591 1.59l-4-4a1.125 1.125 0 010-1.59l4-4a1.125 1.125 0 011.591 1.59l-2.034 2.032z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                   </svg>
                   Print
                 </button>
-                <button type="button" className="btn btn-primary" style={{ height: '38px' }} onClick={handleDownloadPdf}>
-                  <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" style={{width:18, height:18, marginRight:6}}>
+                <button type="button" className="btn btn-outline-primary" onClick={handleDownloadPdf}>
+                  <svg fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="18" height="18" className="me-2 d-inline-block align-text-bottom">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                   </svg>
                   Download PDF
@@ -122,83 +126,99 @@ export default function ReportsPage() {
       </div>
 
       {hasSearched && !loading && (
-        <div className="report-container" id="report-content" style={{ backgroundColor: 'var(--bg)', padding: '10px' }}>
+        <div id="report-content" className="bg-white p-4 rounded shadow-sm">
           <div className="print-only mb-4" style={{ display: 'none' }}>
-            <h1 style={{ fontSize: '24px', textAlign: 'center' }}>Daily Summary Report</h1>
-            <p style={{ textAlign: 'center', marginBottom: '20px' }}>Date: {format(new Date(date), 'dd MMMM yyyy')}</p>
+            <h1 className="text-center fw-bold h3 mb-2">Daily Summary Report</h1>
+            <p className="text-center text-muted mb-4">Date: {format(new Date(date), 'dd MMMM yyyy')}</p>
           </div>
 
-          <div className="stat-grid mb-6">
-            <div className="stat-card blue">
-              <div className="stat-label">Total Billed</div>
-              <div className="stat-value">₹{totalBilled.toFixed(2)}</div>
+          <div className="row g-3 mb-5">
+            <div className="col-12 col-md-4">
+              <div className="card border-info border-start border-4 h-100 shadow-sm bg-light">
+                <div className="card-body">
+                  <div className="text-muted small fw-semibold text-uppercase mb-1">Total Billed</div>
+                  <div className="fs-4 fw-bold text-info">₹{totalBilled.toFixed(2)}</div>
+                </div>
+              </div>
             </div>
-            <div className="stat-card green">
-              <div className="stat-label">Total Cash Received</div>
-              <div className="stat-value">₹{grandTotalReceived.toFixed(2)}</div>
+            <div className="col-12 col-md-4">
+              <div className="card border-success border-start border-4 h-100 shadow-sm bg-light">
+                <div className="card-body">
+                  <div className="text-muted small fw-semibold text-uppercase mb-1">Total Cash Received</div>
+                  <div className="fs-4 fw-bold text-success">₹{grandTotalReceived.toFixed(2)}</div>
+                </div>
+              </div>
             </div>
-            <div className="stat-card amber">
-              <div className="stat-label">New Outstanding Created</div>
-              <div className="stat-value">₹{newOutstandingCreated.toFixed(2)}</div>
+            <div className="col-12 col-md-4">
+              <div className="card border-warning border-start border-4 h-100 shadow-sm bg-light">
+                <div className="card-body">
+                  <div className="text-muted small fw-semibold text-uppercase mb-1">New Outstanding Created</div>
+                  <div className="fs-4 fw-bold text-warning">₹{newOutstandingCreated.toFixed(2)}</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="form-grid-2">
-            <div className="card">
-              <div className="card-header">
-                <h2>Bills ({bills.length})</h2>
-              </div>
-              <div className="table-wrapper" style={{ border: 'none', borderTop: '1px solid var(--border)', borderRadius: 0 }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Customer</th>
-                      <th className="text-right">Billed</th>
-                      <th className="text-right">Paid</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {bills.length === 0 && (
-                      <tr><td colSpan={3} className="text-center text-muted">No bills generated today.</td></tr>
-                    )}
-                    {bills.map(b => (
-                      <tr key={b.id}>
-                        <td>{b.customerName}</td>
-                        <td className="text-right">₹{b.subtotal.toFixed(2)}</td>
-                        <td className="text-right text-success">₹{b.amountPaid.toFixed(2)}</td>
+          <div className="row g-4">
+            <div className="col-12 col-lg-6">
+              <div className="card shadow-sm h-100 border-0">
+                <div className="card-header bg-white py-3 border-bottom-0">
+                  <h5 className="card-title mb-0 fw-bold">Bills ({bills.length})</h5>
+                </div>
+                <div className="table-responsive border-top">
+                  <table className="table table-striped table-hover align-middle mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Customer</th>
+                        <th className="text-end">Billed</th>
+                        <th className="text-end">Paid</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {bills.length === 0 && (
+                        <tr><td colSpan={3} className="text-center text-muted py-4">No bills generated today.</td></tr>
+                      )}
+                      {bills.map(b => (
+                        <tr key={b.id}>
+                          <td className="fw-medium">{b.customerName}</td>
+                          <td className="text-end">₹{b.subtotal.toFixed(2)}</td>
+                          <td className="text-end text-success fw-medium">₹{b.amountPaid.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
 
-            <div className="card">
-              <div className="card-header">
-                <h2>Standalone Payments ({payments.length})</h2>
-              </div>
-              <div className="table-wrapper" style={{ border: 'none', borderTop: '1px solid var(--border)', borderRadius: 0 }}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Customer</th>
-                      <th>Note</th>
-                      <th className="text-right">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payments.length === 0 && (
-                      <tr><td colSpan={3} className="text-center text-muted">No payments received today.</td></tr>
-                    )}
-                    {payments.map(p => (
-                      <tr key={p.id}>
-                        <td>{p.customerName}</td>
-                        <td className="text-sm">{p.note || '-'}</td>
-                        <td className="text-right text-success font-medium">₹{p.amount.toFixed(2)}</td>
+            <div className="col-12 col-lg-6">
+              <div className="card shadow-sm h-100 border-0">
+                <div className="card-header bg-white py-3 border-bottom-0">
+                  <h5 className="card-title mb-0 fw-bold">Standalone Payments ({payments.length})</h5>
+                </div>
+                <div className="table-responsive border-top">
+                  <table className="table table-striped table-hover align-middle mb-0">
+                    <thead className="table-light">
+                      <tr>
+                        <th>Customer</th>
+                        <th>Note</th>
+                        <th className="text-end">Amount</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {payments.length === 0 && (
+                        <tr><td colSpan={3} className="text-center text-muted py-4">No payments received today.</td></tr>
+                      )}
+                      {payments.map(p => (
+                        <tr key={p.id}>
+                          <td className="fw-medium">{p.customerName}</td>
+                          <td className="small text-muted">{p.note || '-'}</td>
+                          <td className="text-end text-success fw-bold">₹{p.amount.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -210,7 +230,8 @@ export default function ReportsPage() {
           .no-print { display: none !important; }
           .print-only { display: block !important; }
           body { background: white; margin: 0; }
-          .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+          .card { box-shadow: none !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }
+          .shadow-sm { box-shadow: none !important; }
         }
       `}} />
     </AuthGuard>
