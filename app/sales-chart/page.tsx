@@ -239,7 +239,12 @@ export default function SalesChartPage() {
                           <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(v: number) => [`₹${v.toFixed(2)}`, 'Sales']} />
+                      <Tooltip
+  formatter={(value) => [
+    `₹${Number(value ?? 0).toFixed(2)}`,
+    "Sales",
+  ]}
+/>
                     </PieChart>
                   </ResponsiveContainer>
                   <div style={{ flex: 1, minWidth: 200 }}>
