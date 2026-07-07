@@ -12,6 +12,9 @@ import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export default function BillingPage({ params }: { params: Promise<{ orderId: string }> }) {
   const { orderId } = use(params);
@@ -113,8 +116,38 @@ export default function BillingPage({ params }: { params: Promise<{ orderId: str
     }
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    if (Capacitor.isNativePlatform()) {
+      // In Android App, capture as image and share to Thermal Printer app (e.g. RawBT)
+      const reportElement = document.getElementById('thermal-bill');
+      if (!reportElement) return;
+      
+      try {
+        reportElement.style.display = 'block';
+        const canvas = await html2canvas(reportElement, { scale: 2 });
+        reportElement.style.display = 'none';
+        
+        const base64Data = canvas.toDataURL('image/png').split(',')[1];
+        const filename = `Bill_${order?.customerName}_Print.png`;
+        
+        const savedFile = await Filesystem.writeFile({
+          path: filename,
+          data: base64Data,
+          directory: Directory.Cache
+        });
+        
+        await Share.share({
+          title: 'Print Bill',
+          url: savedFile.uri,
+          dialogTitle: 'Select your Thermal Printer App'
+        });
+      } catch (err) {
+        console.error('Capacitor Print Error:', err);
+        alert('Failed to send to printer');
+      }
+    } else {
+      window.print();
+    }
   };
 
   const handleDownloadPdf = async () => {
@@ -137,23 +170,36 @@ export default function BillingPage({ params }: { params: Promise<{ orderId: str
       pdf.addImage(imgData, 'PNG', 0, 5, pdfWidth, pdfHeight);
       const filename = `Bill_${order?.customerName}_${format(new Date(), 'dd-MM-yy')}.pdf`;
 
-      // Try to use Native Web Share API first (solves the Capacitor / Android webview download issue)
-      const pdfBlob = pdf.output('blob');
-      
-      try {
-        const file = new File([pdfBlob], filename, { type: 'application/pdf' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: filename,
-            files: [file]
-          });
-        } else {
-          // Fallback for desktop or unsupported browsers
+      if (Capacitor.isNativePlatform()) {
+        const base64Data = pdf.output('datauristring').split(',')[1];
+        const savedFile = await Filesystem.writeFile({
+          path: filename,
+          data: base64Data,
+          directory: Directory.Cache
+        });
+        
+        await Share.share({
+          title: filename,
+          url: savedFile.uri,
+        });
+      } else {
+        // Try to use Native Web Share API first for mobile browsers
+        const pdfBlob = pdf.output('blob');
+        
+        try {
+          const file = new File([pdfBlob], filename, { type: 'application/pdf' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: filename,
+              files: [file]
+            });
+          } else {
+            pdf.save(filename);
+          }
+        } catch (shareErr) {
+          console.error('Sharing failed or cancelled, falling back to save:', shareErr);
           pdf.save(filename);
         }
-      } catch (shareErr) {
-        console.error('Sharing failed or cancelled, falling back to save:', shareErr);
-        pdf.save(filename);
       }
     } catch (err) {
       console.error('Error generating PDF:', err);
